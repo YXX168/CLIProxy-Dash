@@ -1,0 +1,101 @@
+name: Release Android
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+
+      - name: Validate tag version
+        shell: bash
+        run: |
+          version="$(sed -nE 's/^version: ([^+]+).*/\1/p' pubspec.yaml)"
+          if [[ "v${version}" != "${GITHUB_REF_NAME}" ]]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match pubspec version ${version}."
+            exit 1
+          fi
+
+      - run: flutter pub get
+      - name: Format
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+      - name: Test
+        run: flutter test --exclude-tags=golden
+
+      - name: Prepare release signing
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          for value in KEYSTORE_BASE64 STORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [[ -z "${!value}" ]]; then
+              echo "Required signing secret ${value} is missing."
+              exit 1
+            fi
+          done
+          printf '%s' "${KEYSTORE_BASE64}" | base64 --decode > android/app/release.p12
+          {
+            echo "storePassword=${STORE_PASSWORD}"
+            echo "keyPassword=${KEY_PASSWORD}"
+            echo "keyAlias=${KEY_ALIAS}"
+            echo "storeFile=release.p12"
+          } > android/key.properties
+
+      - name: Build ARM64 release APK
+        run: flutter build apk --release --target-platform android-arm64
+
+      - name: Package release files
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          name="CLIProxy-v${version}-arm64.apk"
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/${name}"
+          (cd dist && sha256sum "${name}" > "${name}.sha256")
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: CLIProxy-${{ github.ref_name }}-arm64
+          path: dist/*
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "${GITHUB_REF_NAME}" dist/*
+          --verify-tag
+          --title "CLIProxy ${GITHUB_REF_NAME#v}"
+          --notes-from-tag
+
+      - name: Remove signing material
+        if: always()
+        run: rm -f android/app/release.p12 android/key.properties
