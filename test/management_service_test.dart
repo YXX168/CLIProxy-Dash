@@ -110,7 +110,10 @@ void main() {
         expect(account.failedRequests, 2);
         expect(account.recentTotal, 7);
         expect(account.recentFailed, 1);
-        expect(account.recentRequests.single.time, '14:00-14:10');
+        expect(
+          account.recentRequests.single.time,
+          '14:00-14:10',
+        );
         expect(requests, hasLength(3));
         expect(
           requests.first.headers['authorization'],
