@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-08-13
+
+### 接口兼容性修复
+
+- 兼容 CLIProxyAPI 配置接口使用的模型显示名字段 `display-name`，同时保留 OAuth 模型接口的 `display_name` 支持。
+- 修复 `recent_requests[].time` 被错误按 ISO 日期解析的问题，正确保留服务端返回的 `HH:mm-HH:mm` 时间窗口标签。
+- 补充模型显示名和近期请求时间窗口的解析测试。
+
 ## [1.0.0] - 2026-08-10
 
 ### 正式发布
@@ -19,4 +27,5 @@
 - Management API 地址和管理密钥保存在 Android 安全存储中。
 - 提供 ARM64 APK 与 SHA-256 完整性校验文件。
 
+[1.0.1]: https://github.com/YXX168/CLIProxy-Dash/releases/tag/v1.0.1
 [1.0.0]: https://github.com/YXX168/CLIProxy-Dash/releases/tag/v1.0.0

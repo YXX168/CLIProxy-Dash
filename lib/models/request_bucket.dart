@@ -5,15 +5,16 @@ class RequestBucket {
     required this.failed,
   });
 
-  final DateTime? time;
+  final String? time;
   final int success;
   final int failed;
 
   int get total => success + failed;
 
   factory RequestBucket.fromJson(Map<String, dynamic> json) {
+    final rawTime = json['time']?.toString().trim();
     return RequestBucket(
-      time: DateTime.tryParse(json['time']?.toString() ?? '')?.toLocal(),
+      time: rawTime == null || rawTime.isEmpty ? null : rawTime,
       success: _asInt(json['success']),
       failed: _asInt(json['failed']),
     );

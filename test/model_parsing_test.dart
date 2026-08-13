@@ -28,8 +28,8 @@ void main() {
       'success_requests': '8',
       'failedRequests': 1,
       'recent_requests': [
-        {'time': '2026-07-17T01:00:00Z', 'success': 3, 'failed': 1},
-        {'time': '2026-07-17T01:05:00Z', 'success': '4', 'failed': 0},
+        {'time': '14:00-14:10', 'success': 3, 'failed': 1},
+        {'time': '14:10-14:20', 'success': '4', 'failed': 0},
       ],
     });
 
@@ -40,9 +40,21 @@ void main() {
     expect(account.successRequests, 8);
     expect(account.failedRequests, 1);
     expect(account.recentRequests, hasLength(2));
+    expect(account.recentRequests.first.time, '14:00-14:10');
     expect(account.recentRequests.first.total, 4);
     expect(account.recentRequests.last.success, 4);
     expect(AuthFileAccount.maskName('xy'), '***');
     expect(AuthFileAccount.maskName('robot'), 'rob***');
+  });
+
+  test('recent request bucket treats an empty time label as missing', () {
+    final account = AuthFileAccount.fromJson({
+      'id': 'empty-window',
+      'recent_requests': [
+        {'time': '  ', 'success': 1, 'failed': 0},
+      ],
+    });
+
+    expect(account.recentRequests.single.time, isNull);
   });
 }

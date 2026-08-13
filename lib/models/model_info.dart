@@ -25,7 +25,9 @@ class ModelInfo {
   factory ModelInfo.fromJson(Map<String, dynamic> json, String provider) {
     final name = (json['name'] ?? json['id'])?.toString().trim() ?? '';
     final alias = json['alias']?.toString().trim();
-    final label = json['display_name']?.toString().trim();
+    final label = (json['display_name'] ?? json['display-name'])
+        ?.toString()
+        .trim();
     return ModelInfo(
       name: name,
       provider: provider,

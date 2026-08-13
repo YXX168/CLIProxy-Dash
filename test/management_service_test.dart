@@ -26,11 +26,7 @@ void main() {
                     'success': 24,
                     'failed': '2',
                     'recent_requests': [
-                      {
-                        'time': '2026-07-17T01:00:00Z',
-                        'success': 6,
-                        'failed': 1,
-                      },
+                      {'time': '14:00-14:10', 'success': 6, 'failed': 1},
                     ],
                   },
                   {
@@ -110,6 +106,7 @@ void main() {
         expect(account.failedRequests, 2);
         expect(account.recentTotal, 7);
         expect(account.recentFailed, 1);
+        expect(account.recentRequests.single.time, '14:00-14:10');
         expect(requests, hasLength(3));
         expect(
           requests.first.headers['authorization'],
