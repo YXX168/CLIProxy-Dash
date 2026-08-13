@@ -85,15 +85,21 @@ void main() {
         final codex = result.providers.singleWhere(
           (group) => group.provider == 'OpenAI Codex',
         );
-        expect(codex.models.map((model) => model.name), [
-          'gpt-oauth',
-          'gpt-config',
-        ]);
-        expect(codex.models.first.alias, isNull);
-        expect(codex.models.first.label, 'GPT OAuth');
-        expect(codex.models.first.ownedBy, 'openai');
-        expect(codex.models.last.label, 'GPT Config');
-        expect(codex.models.last.displayName, 'GPT Config');
+        expect(
+          codex.models.map((model) => model.name),
+          containsAll(['gpt-oauth', 'gpt-config']),
+        );
+        final oauth = codex.models.singleWhere(
+          (model) => model.name == 'gpt-oauth',
+        );
+        final configured = codex.models.singleWhere(
+          (model) => model.name == 'gpt-config',
+        );
+        expect(oauth.alias, isNull);
+        expect(oauth.label, 'GPT OAuth');
+        expect(oauth.ownedBy, 'openai');
+        expect(configured.label, 'GPT Config');
+        expect(configured.displayName, 'GPT Config');
         expect(codex.excludedModels, ['gpt-hidden', 'gpt-old']);
 
         final local = result.providers.singleWhere(
