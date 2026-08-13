@@ -60,12 +60,21 @@ class _ReviewRepository implements QuotaRepository {
     recentRequests: List.generate(
       12,
       (index) => RequestBucket(
-        time: DateTime(2026, 7, 19, 9, index * 5),
+        time: _requestWindow(index),
         success: 3 + (index * 7 + id.length) % 11,
         failed: index == 4 || index == 9 ? 2 : 0,
       ),
     ),
   );
+
+  String _requestWindow(int index) {
+    String format(int minutes) =>
+        '${(minutes ~/ 60).toString().padLeft(2, '0')}:'
+        '${(minutes % 60).toString().padLeft(2, '0')}';
+
+    final start = 9 * 60 + index * 10;
+    return '${format(start)}-${format(start + 10)}';
+  }
 }
 
 class _PendingRepository implements QuotaRepository {

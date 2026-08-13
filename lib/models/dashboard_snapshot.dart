@@ -47,7 +47,7 @@ class DashboardSnapshot {
     return List.generate(maxLength, (index) {
       var success = 0;
       var failed = 0;
-      DateTime? time;
+      String? time;
       for (final account in accounts) {
         final offset = maxLength - account.recentRequests.length;
         final accountIndex = index - offset;

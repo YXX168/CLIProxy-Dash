@@ -18,7 +18,11 @@ void main() {
               'codex-api-key': [
                 {
                   'models': [
-                    {'name': 'gpt-config', 'alias': 'gpt-public'},
+                    {
+                      'name': 'gpt-config',
+                      'alias': 'gpt-public',
+                      'display-name': 'GPT Config',
+                    },
                     {'name': ''},
                   ],
                   'excluded-models': ['gpt-old'],
@@ -88,6 +92,8 @@ void main() {
         expect(codex.models.first.alias, isNull);
         expect(codex.models.first.label, 'GPT OAuth');
         expect(codex.models.first.ownedBy, 'openai');
+        expect(codex.models.last.label, 'GPT Config');
+        expect(codex.models.last.displayName, 'GPT Config');
         expect(codex.excludedModels, ['gpt-hidden', 'gpt-old']);
 
         final local = result.providers.singleWhere(
