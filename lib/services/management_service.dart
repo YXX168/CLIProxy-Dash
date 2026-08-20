@@ -63,8 +63,7 @@ class ManagementService implements QuotaRepository {
       final secondary = _window(
         rate['secondary_window'] ?? rate['secondaryWindow'],
       );
-      final secondaryLabel = secondary?.displayLabel ??
-          (plan == 'team' ? '月度额度' : '周额度');
+      final secondaryLabel = _secondaryLabel(secondary, plan);
 
       int? resetCredits;
       String? resetCreditsError;
@@ -214,6 +213,12 @@ class ManagementService implements QuotaRepository {
   static QuotaWindow? _window(Object? value) {
     if (value is! Map) return null;
     return QuotaWindow.fromJson(Map<String, dynamic>.from(value));
+  }
+
+  static String _secondaryLabel(QuotaWindow? window, String plan) {
+    final label = window?.displayLabel;
+    if (label != null) return label;
+    return plan == 'team' ? '月度额度' : '周额度';
   }
 
   static bool? _asBool(Object? value) {
