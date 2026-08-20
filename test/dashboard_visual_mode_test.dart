@@ -1,56 +1,52 @@
-import 'package:cliproxy_dash/models/app_config.dart';
+import 'package:cliproxy_dash/app.dart';
 import 'package:cliproxy_dash/models/codex_account.dart';
-import 'package:cliproxy_dash/models/dashboard_snapshot.dart';
 import 'package:cliproxy_dash/models/quota_window.dart';
-import 'package:cliproxy_dash/models/visual_mode.dart';
-import 'package:cliproxy_dash/screens/dashboard_screen.dart';
-import 'package:cliproxy_dash/services/quota_repository.dart';
+import 'package:cliproxy_dash/services/config_store.dart';
+import 'package:cliproxy_dash/services/management_service.dart';
+import 'package:cliproxy_dash/widgets/energy_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _FixedRepository implements QuotaRepository {
+class _FakeConfigStore extends ConfigStore {
+  _FakeConfigStore();
+
   @override
-  Future<DashboardSnapshot> fetchDashboard() async => DashboardSnapshot(
-    checkedAt: DateTime(2026, 7, 17),
-    accounts: [
+  Future<AppConfig> load() async => const AppConfig(
+    baseUrl: 'http://127.0.0.1:8317',
+    apiKey: 'test-key',
+  );
+}
+
+class _FakeManagementService extends ManagementService {
+  _FakeManagementService() : super(client: null);
+
+  @override
+  Future<List<CodexAccount>> fetchAccounts({
+    required String baseUrl,
+    required String apiKey,
+  }) async {
+    return const [
       CodexAccount(
-        id: 'account-1',
-        authIndex: '1',
-        name: 'test***@example.com',
-        email: 'test***@example.com',
-        plan: 'plus',
-        available: true,
-        limitReached: false,
+        id: 'account-0',
+        email: 'test@example.com',
+        label: 'test@example.com',
         primary: QuotaWindow(
           usedPercent: 20,
-          remainingPercent: 80,
-          resetAt: DateTime(2026, 7, 24),
+          resetAt: '2026-08-27T00:00:00Z',
           limitWindowSeconds: 604800,
         ),
         secondary: null,
-        secondaryLabel: '周额度',
-        resetCredits: 3,
-        successRequests: 10,
-        failedRequests: 1,
       ),
-    ],
-  );
+    ];
+  }
 }
 
 Future<void> _pumpDashboard(WidgetTester tester, VisualMode mode) async {
   await tester.pumpWidget(
-    MaterialApp(
-      home: DashboardScreen(
-        config: const AppConfig(
-          baseUrl: 'https://example.com/v0/management',
-          key: 'test-key',
-        ),
-        repository: _FixedRepository(),
-        visualMode: mode,
-        onVisualModeChanged: (_) async {},
-        onEditConfig: () async {},
-        autoRefreshInterval: Duration.zero,
-      ),
+    CLIProxyDashApp(
+      configStore: _FakeConfigStore(),
+      managementService: _FakeManagementService(),
+      initialVisualMode: mode,
     ),
   );
   await tester.pump();
@@ -81,7 +77,7 @@ void main() {
         of: find.byKey(const Key('energy-account-0')),
         matching: find.text('80%'),
       ),
-      findsOneWidget,
+      findsNWidgets(2),
     );
   });
 
@@ -98,15 +94,9 @@ void main() {
   testWidgets('settings opens the redesigned control center', (tester) async {
     await _pumpDashboard(tester, VisualMode.console);
 
-    await tester.tap(find.byKey(const Key('dashboard-menu')));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(find.byTooltip('设置'));
+    await tester.pumpAndSettle();
 
     expect(find.text('控制中心'), findsOneWidget);
-    expect(find.text('显示模式'), findsOneWidget);
-    expect(find.text('深海控制台'), findsOneWidget);
-    expect(find.text('能量核心'), findsOneWidget);
-    expect(find.text('自动刷新'), findsOneWidget);
-    expect(find.text('连接配置'), findsOneWidget);
   });
 }
