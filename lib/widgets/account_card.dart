@@ -108,10 +108,7 @@ class AccountCard extends StatelessWidget {
             ),
           ] else ...[
             const SizedBox(height: 18),
-            QuotaProgress(
-              label: account.primaryLabel,
-              window: account.primary,
-            ),
+            QuotaProgress(label: account.primaryLabel, window: account.primary),
             if (account.secondary != null) ...[
               const SizedBox(height: 17),
               QuotaProgress(

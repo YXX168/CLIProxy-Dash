@@ -29,10 +29,7 @@ class QuotaWindow {
       usedPercent: used,
       remainingPercent: used == null ? null : (100 - used).clamp(0, 100),
       resetAt: parseResetTime(json['reset_at'] ?? json['resetAt']),
-      limitWindowSeconds:
-          limitWindowSeconds != null && limitWindowSeconds > 0
-          ? limitWindowSeconds
-          : null,
+      limitWindowSeconds: _positiveInt(limitWindowSeconds),
     );
   }
 
@@ -70,5 +67,10 @@ class QuotaWindow {
   static int? _asInt(Object? value) {
     if (value is num) return value.toInt();
     return double.tryParse(value?.toString() ?? '')?.toInt();
+  }
+
+  static int? _positiveInt(int? value) {
+    if (value == null || value <= 0) return null;
+    return value;
   }
 }

@@ -57,7 +57,9 @@ class ManagementService implements QuotaRepository {
       final plan = (usage['plan_type'] ?? usage['planType'] ?? 'unknown')
           .toString()
           .toLowerCase();
-      final primary = _window(rate['primary_window'] ?? rate['primaryWindow']);
+      final primary = _window(
+        rate['primary_window'] ?? rate['primaryWindow'],
+      );
       final secondary = _window(
         rate['secondary_window'] ?? rate['secondaryWindow'],
       );
