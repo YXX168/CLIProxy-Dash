@@ -3,20 +3,26 @@ import 'package:cliproxy_dash/models/quota_window.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('quota window parses snake/camel case and clamps remaining quota', () {
+  test('quota window parses server durations without assuming five hours', () {
     final snake = QuotaWindow.fromJson({
       'used_percent': 125,
       'reset_at': 1750000000,
+      'limit_window_seconds': 604800,
     });
     final camel = QuotaWindow.fromJson({
       'usedPercent': '20.5',
       'resetAt': '2026-07-15T12:00:00Z',
+      'limitWindowSeconds': '18000',
     });
 
     expect(snake.remainingPercent, 0);
     expect(snake.resetAt, isNotNull);
+    expect(snake.limitWindowSeconds, 604800);
+    expect(snake.displayLabel, '周额度');
     expect(camel.remainingPercent, 79.5);
     expect(camel.resetAt, isNotNull);
+    expect(camel.limitWindowSeconds, 18000);
+    expect(camel.displayLabel, '短时额度');
   });
 
   test('auth file uses reference priority and masks identity', () {

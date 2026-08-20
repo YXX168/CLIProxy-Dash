@@ -38,6 +38,8 @@ class CodexAccount {
   final String? resetCreditsError;
   final List<RequestBucket> recentRequests;
 
+  String get primaryLabel => primary?.displayLabel ?? '周额度';
+
   bool get isAvailable =>
       error == null && available == true && limitReached != true;
   bool get hasError => error != null;

@@ -59,10 +59,12 @@ void main() {
                     'primary_window': {
                       'used_percent': 12.5,
                       'reset_at': 1750000000,
+                      'limit_window_seconds': 604800,
                     },
                     'secondaryWindow': {
                       'usedPercent': '40',
                       'resetAt': '1750100000',
+                      'limitWindowSeconds': 2592000,
                     },
                   },
                 }),
@@ -97,6 +99,7 @@ void main() {
         expect(account.name, 'ali***@example.com');
         expect(account.email, 'ali***@example.com');
         expect(account.plan, 'team');
+        expect(account.primaryLabel, '周额度');
         expect(account.secondaryLabel, '月度额度');
         expect(account.primary!.usedPercent, 12.5);
         expect(account.primary!.remainingPercent, 87.5);

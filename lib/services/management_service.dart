@@ -57,6 +57,11 @@ class ManagementService implements QuotaRepository {
       final plan = (usage['plan_type'] ?? usage['planType'] ?? 'unknown')
           .toString()
           .toLowerCase();
+      final primary = _window(rate['primary_window'] ?? rate['primaryWindow']);
+      final secondary = _window(
+        rate['secondary_window'] ?? rate['secondaryWindow'],
+      );
+      final secondaryLabel = _secondaryLabel(secondary, plan);
 
       int? resetCredits;
       String? resetCreditsError;
@@ -77,9 +82,9 @@ class ManagementService implements QuotaRepository {
         plan: plan,
         available: _asBool(rate['allowed']),
         limitReached: _asBool(rate['limit_reached'] ?? rate['limitReached']),
-        primary: _window(rate['primary_window'] ?? rate['primaryWindow']),
-        secondary: _window(rate['secondary_window'] ?? rate['secondaryWindow']),
-        secondaryLabel: plan == 'team' ? '月度额度' : '周额度',
+        primary: primary,
+        secondary: secondary,
+        secondaryLabel: secondaryLabel,
         resetCredits: resetCredits,
         resetCreditsError: resetCreditsError,
         successRequests: auth.successRequests,
@@ -206,6 +211,12 @@ class ManagementService implements QuotaRepository {
   static QuotaWindow? _window(Object? value) {
     if (value is! Map) return null;
     return QuotaWindow.fromJson(Map<String, dynamic>.from(value));
+  }
+
+  static String _secondaryLabel(QuotaWindow? window, String plan) {
+    final label = window?.displayLabel;
+    if (label != null) return label;
+    return plan == 'team' ? '月度额度' : '周额度';
   }
 
   static bool? _asBool(Object? value) {
