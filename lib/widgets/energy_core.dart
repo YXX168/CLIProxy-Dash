@@ -148,21 +148,23 @@ class _EnergyAccountCoreState extends State<EnergyAccountCore>
                       children: [
                         Expanded(
                           child: _QuotaReading(
-                            label: '主要',
+                            label: account.primaryLabel,
                             remaining: account.primary?.remainingPercent,
                           ),
                         ),
-                        Container(
-                          width: 1,
-                          height: 25,
-                          color: const Color(0x332D3C55),
-                        ),
-                        Expanded(
-                          child: _QuotaReading(
-                            label: account.secondaryLabel,
-                            remaining: account.secondary?.remainingPercent,
+                        if (account.secondary != null) ...[
+                          Container(
+                            width: 1,
+                            height: 25,
+                            color: const Color(0x332D3C55),
                           ),
-                        ),
+                          Expanded(
+                            child: _QuotaReading(
+                              label: account.secondaryLabel,
+                              remaining: account.secondary?.remainingPercent,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 7),

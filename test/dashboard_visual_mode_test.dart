@@ -24,13 +24,10 @@ class _FixedRepository implements QuotaRepository {
         primary: QuotaWindow(
           usedPercent: 20,
           remainingPercent: 80,
-          resetAt: DateTime(2026, 7, 18),
-        ),
-        secondary: QuotaWindow(
-          usedPercent: 40,
-          remainingPercent: 60,
           resetAt: DateTime(2026, 7, 24),
+          limitWindowSeconds: 604800,
         ),
+        secondary: null,
         secondaryLabel: '周额度',
         resetCredits: 3,
         successRequests: 10,
@@ -82,10 +79,20 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const Key('energy-account-0')),
-        matching: find.text('70%'),
+        matching: find.text('80%'),
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('labels a single current quota window as weekly', (tester) async {
+    await _pumpDashboard(tester, VisualMode.console);
+
+    await tester.tap(find.byKey(const Key('account-card-0')));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('周额度'), findsWidgets);
+    expect(find.text('5 小时限额'), findsNothing);
   });
 
   testWidgets('settings opens the redesigned control center', (tester) async {

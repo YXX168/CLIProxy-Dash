@@ -100,14 +100,16 @@ class AccountDetailScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 24),
                             QuotaProgress(
-                              label: '5 小时限额',
+                              label: account.primaryLabel,
                               window: account.primary,
                             ),
-                            const SizedBox(height: 25),
-                            QuotaProgress(
-                              label: account.secondaryLabel,
-                              window: account.secondary,
-                            ),
+                            if (account.secondary != null) ...[
+                              const SizedBox(height: 25),
+                              QuotaProgress(
+                                label: account.secondaryLabel,
+                                window: account.secondary,
+                              ),
+                            ],
                             const SizedBox(height: 24),
                             const Divider(height: 1),
                             const SizedBox(height: 20),
@@ -161,26 +163,34 @@ class _ResetTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final events =
-        [
-          _ResetEvent(
-            label: '5 小时限额',
-            time: account.primary?.resetAt,
-            color: AppTheme.cyan,
-            icon: Icons.bolt_rounded,
-          ),
-          _ResetEvent(
-            label: account.secondaryLabel,
-            time: account.secondary?.resetAt,
-            color: AppTheme.violet,
-            icon: Icons.calendar_month_rounded,
-          ),
-        ]..sort((left, right) {
-          if (left.time == null && right.time == null) return 0;
-          if (left.time == null) return 1;
-          if (right.time == null) return -1;
-          return left.time!.compareTo(right.time!);
-        });
+    final events = <_ResetEvent>[];
+    if (account.primary != null) {
+      events.add(
+        _ResetEvent(
+          label: account.primaryLabel,
+          time: account.primary?.resetAt,
+          color: AppTheme.cyan,
+          icon: Icons.bolt_rounded,
+        ),
+      );
+    }
+    if (account.secondary != null) {
+      events.add(
+        _ResetEvent(
+          label: account.secondaryLabel,
+          time: account.secondary?.resetAt,
+          color: AppTheme.violet,
+          icon: Icons.calendar_month_rounded,
+        ),
+      );
+    }
+    events.sort((left, right) {
+      if (left.time == null && right.time == null) return 0;
+      if (left.time == null) return 1;
+      if (right.time == null) return -1;
+      return left.time!.compareTo(right.time!);
+    });
+    if (events.isEmpty) return const SizedBox.shrink();
 
     return Column(
       key: const Key('quota-reset-timeline'),

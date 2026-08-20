@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-08-20
+
+### 额度展示修复
+
+- 适配 ChatGPT Codex 当前返回的周额度窗口；不再把 primary_window 写死显示为 5 小时限额。
+- 读取服务端的 limit_window_seconds（含驼峰兼容）判定周/月/短时窗口；服务端未返回时按当前单周窗口规则显示为周额度。
+- 仅返回一个额度窗口时，账号卡片、详情页和能量核心不再渲染空的第二个额度槽位。
+
 ## [1.0.1] - 2026-08-13
 
 ### 接口兼容性修复
@@ -27,5 +35,6 @@
 - Management API 地址和管理密钥保存在 Android 安全存储中。
 - 提供 ARM64 APK 与 SHA-256 完整性校验文件。
 
+[1.0.2]: https://github.com/YXX168/CLIProxy-Dash/releases/tag/v1.0.2
 [1.0.1]: https://github.com/YXX168/CLIProxy-Dash/releases/tag/v1.0.1
 [1.0.0]: https://github.com/YXX168/CLIProxy-Dash/releases/tag/v1.0.0
